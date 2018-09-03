@@ -1,0 +1,58 @@
+version: 2
+jobs:
+    # The deploy job
+    deploy:
+        docker:
+            - image: circleci/node:8.11.2
+        steps:
+            - checkout
+            # Log the current branch
+            - run:
+                name: "Checking Versions"
+                command: |
+                    node --version
+                    npm --version
+            - run:
+                name: Show current branch
+                command: echo ${CIRCLE_BRANCH}
+            # Restore local dependencies from cache
+            - restore_cache:
+                keys:
+                - v1-dependencies-{{ checksum "package.json" }}
+                - v1-dependencies-
+            # Install project dependencies
+            - run:
+                name: Install local dependencies
+                command: npm install
+            # Cache local dependencies if they don't exist
+            - save_cache:
+                key: v1-dependencies-{{ checksum "package.json" }}
+                paths:
+                    - node_modules
+             # Install project dependencies
+            - run:
+                name: Generate static project
+                command: npm run build:prod
+            - persist_to_workspace:
+                root: .
+                paths: dist
+            - run:
+                name: Install aws cli
+                command:
+                    sudo apt-get -y -qq install awscli
+            # Set the signature version for the S3 auth
+            - run:
+                name: Setting Signature Version 4 for S3 Request Authentication
+                command: aws configure set default.s3.signature_version s3v4
+            # Deploy to the S3 bucket corresponding to the current branch
+            - run:
+                name: Deploy to S3
+                command: |
+                    aws --region us-east-2 s3 sync index.html s3://framexframe.org --delete
+                    aws --region us-east-2 s3 sync dist s3://framexframe.org/dist --delete
+workflows:
+    version: 2
+    # The build and deploy workflow
+    build_and_deploy:
+        jobs:
+            - deploy
