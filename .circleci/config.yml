@@ -48,7 +48,7 @@ jobs:
             - run:
                 name: Deploy to S3
                 command: |
-                    aws --region us-east-2 s3 sync . s3://framexframe.org --delete --exclude "node_modules" --exclude "src"
+                    aws --region us-east-1 s3 sync . s3://framexframe.org --delete --exclude "node_modules" --exclude "src"
 workflows:
     version: 2
     # The build and deploy workflow
