@@ -48,7 +48,7 @@ jobs:
             - run:
                 name: Deploy to S3
                 command: |
-                    aws --region us-east-2 s3 sync s3://framexframe.org --exclude "*" --include "index.html" --delete
+                    aws --region us-east-2 s3 sync . s3://framexframe.org --exclude "*" --include "index.html" --delete
                     aws --region us-east-2 s3 sync dist s3://framexframe.org/dist --delete
 workflows:
     version: 2
