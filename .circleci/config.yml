@@ -47,7 +47,7 @@ jobs:
             # Deploy to the S3 bucket corresponding to the current branch
             - run:
                 name: Deploy to S3
-                command: |
+                command: 
                     aws --region us-east-2 s3 sync . s3://framexframe.org --delete --exclude= "node_modules" --exclude= "src"
     version: 2
     # The build and deploy workflow
